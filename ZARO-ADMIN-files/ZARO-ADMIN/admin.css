@@ -8,3 +8,29 @@
 @media(max-width:1100px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.system-status{display:none}.login-visual{padding-right:5%;padding-left:5%}}
 @media(max-width:800px){.login-screen{grid-template-columns:1fr}.login-visual{display:none}.login-panel{min-height:100vh;padding:70px 26px}.login-panel-top{top:25px;right:25px}.login-panel-footer{bottom:18px}.mobile-logo{display:block;margin-bottom:24px}.mobile-logo img{width:62px}.sidebar{transform:translateX(110%);transition:transform .28s ease;box-shadow:-20px 0 50px rgba(0,0,0,.3)}.sidebar.sidebar-open{transform:translateX(0)}.sidebar-close{display:block}.sidebar-backdrop.show{display:block;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:15}.main-area{margin-right:0}.mobile-menu{display:grid;place-items:center}.topbar{padding:0 18px;height:70px}.topbar-end{gap:12px}.topbar-user{padding-right:12px}.topbar-user>div:last-child{display:none}.topbar-logout{width:38px;padding:0;justify-content:center}.topbar-logout span{display:none}.page-container{padding:22px 18px}.welcome-banner{padding:24px;min-height:155px}.banner-art{width:85px;height:85px;margin-left:0}.banner-art i{font-size:34px}.section-heading{margin-top:25px}.orders-toolbar{align-items:flex-start;flex-direction:column}.search-box{width:100%}}
 @media(max-width:520px){.stats-grid{gap:10px}.stat-card{padding:14px;min-height:142px}.stat-card strong{font-size:20px}.stat-label{font-size:9px}.welcome-banner h1{font-size:20px}.welcome-banner p{font-size:10px}.banner-art{width:65px;height:65px}.banner-art i{font-size:27px}.section-heading h2{font-size:14px}.section-heading p{font-size:9px}.secondary-button{padding:0 9px;font-size:9px}.dashboard-footer{font-size:7px;gap:10px}.topbar-date{display:none}.topbar-user{display:none}.settings-row{align-items:flex-start;flex-direction:column}.login-form-wrap h2{font-size:23px}}
+
+
+/* ZARO SUPPORT INBOX */
+.support-admin-grid{display:grid;grid-template-columns:minmax(260px,.8fr) minmax(0,1.4fr);gap:18px}
+.support-admin-grid .content-card{margin-top:0;min-width:0}
+.support-admin-heading{padding:18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.support-admin-heading h2{font-size:14px;margin:0}.support-admin-heading p{font-size:10px;color:#9298a5;margin:5px 0 0}
+.support-total{background:rgba(255,104,31,.14);color:#ff985d;border-radius:9px;padding:7px 10px;font-weight:800}
+.support-ticket-list{padding:8px;max-height:600px;overflow:auto}
+.support-ticket-item{display:block;width:100%;text-align:right;color:inherit;background:transparent;border:1px solid transparent;border-bottom-color:var(--line);padding:13px;border-radius:10px;cursor:pointer}
+.support-ticket-item:hover,.support-ticket-item.selected{background:rgba(255,104,31,.08);border-color:rgba(255,104,31,.25)}
+.support-ticket-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.support-ticket-top b{font-size:11px}
+.support-ticket-subject,.support-ticket-meta{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:7px;font-size:10px}
+.support-ticket-meta{font-size:9px;color:#858b98}
+.support-state{font-size:9px;font-style:normal;border-radius:20px;padding:5px 8px;background:#30343d;color:#b9bec8}
+.support-state.open{color:#ffc16e;background:rgba(255,180,80,.12)}.support-state.answered{color:#5bdba5;background:rgba(60,210,145,.12)}.support-state.closed{color:#ff8989;background:rgba(255,90,90,.12)}
+.support-messages{padding:16px;display:flex;flex-direction:column;gap:12px;min-height:250px;max-height:480px;overflow:auto}
+.support-message{align-self:flex-start;max-width:88%;padding:12px;border-radius:12px;background:#20242d;border:1px solid var(--line)}
+.support-message.admin{align-self:flex-end;background:rgba(255,104,31,.1);border-color:rgba(255,104,31,.22)}
+.support-message-meta{display:flex;gap:12px;font-size:9px;color:#ff985d}.support-message-meta time{color:#858b98}
+.support-message p{font-size:11px;line-height:1.8;margin:7px 0 0;overflow-wrap:anywhere}
+.support-reply-form{padding:15px;border-top:1px solid var(--line)}
+.support-reply-form textarea{width:100%;padding:12px;border-radius:10px;background:#101219;border:1px solid var(--line);color:white;font:12px Cairo,sans-serif;resize:vertical}
+.support-reply-form button{margin-top:10px}.support-reply-form button:disabled{opacity:.5}
+.support-reply-form p{font-size:10px;color:#54dca5;min-height:15px}
+@media(max-width:900px){.support-admin-grid{grid-template-columns:1fr}.support-ticket-list{max-height:300px}}
