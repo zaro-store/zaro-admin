@@ -134,6 +134,7 @@ loginForm.addEventListener("submit", async (event) => {
     showMessage("تم تسجيل الدخول بنجاح", "success");
     showDashboard();
     await loadOrders();
+    await loadSupportTickets();
   } catch (error) {
     showMessage(error.message || "تعذر تسجيل الدخول");
   } finally {
@@ -149,14 +150,79 @@ $("refreshButton").addEventListener("click", loadOrders);
 $("ordersRefresh").addEventListener("click", loadOrders);
 $("orderSearch").addEventListener("input", event => renderAllOrders(event.target.value));
 
+// ZARO CUSTOMER SUPPORT INBOX
+let supportTickets = [];
+let activeSupportTicket = null;
+const supportState = status => ({open:["مفتوحة","open"],answered:["تم الرد","answered"],closed:["مغلقة","closed"]}[status] || ["مفتوحة","open"]);
+
+async function loadSupportTickets() {
+  const list = $("supportTicketList");
+  if (!list) return;
+  list.innerHTML = '<div class="table-empty">جاري تحميل الرسائل...</div>';
+  const {data,error} = await supabase.from("support_tickets")
+    .select("id,customer_name,customer_email,subject,status,created_at,updated_at")
+    .order("updated_at",{ascending:false});
+  if(error) {
+    list.innerHTML = '<div class="table-empty">تعذر تحميل الرسائل: '+safe(error.message)+'</div>';
+    console.error(error); return;
+  }
+  supportTickets = data || [];
+  $("supportTotal").textContent = supportTickets.length;
+  $("sidebarSupportCount").textContent = supportTickets.filter(t=>t.status==="open").length;
+  if(!supportTickets.length) {
+    list.innerHTML = '<div class="table-empty">لا توجد رسائل حتى الآن</div>';
+    $("supportMessages").innerHTML = '<div class="table-empty">لا توجد محادثات</div>';
+    activeSupportTicket=null; return;
+  }
+  list.innerHTML = supportTickets.map(t=>{
+    const st=supportState(t.status);
+    return '<button type="button" class="support-ticket-item '+(activeSupportTicket?.id===t.id?'selected':'')+'" data-ticket-id="'+safe(t.id)+'"><span class="support-ticket-top"><b>'+safe(t.customer_name)+'</b><i class="support-state '+st[1]+'">'+st[0]+'</i></span><span class="support-ticket-subject">'+safe(t.subject)+'</span><span class="support-ticket-meta">'+safe(t.customer_email)+' · '+formatDate(t.updated_at)+'</span></button>';
+  }).join("");
+  list.querySelectorAll("[data-ticket-id]").forEach(b=>b.addEventListener("click",()=>openSupportTicket(b.dataset.ticketId)));
+  if(activeSupportTicket && supportTickets.some(t=>t.id===activeSupportTicket.id)) await openSupportTicket(activeSupportTicket.id,false);
+}
+async function openSupportTicket(id, paint=true) {
+  const ticket=supportTickets.find(t=>t.id===id); if(!ticket) return;
+  activeSupportTicket=ticket;
+  if(paint) document.querySelectorAll(".support-ticket-item").forEach(b=>b.classList.toggle("selected",b.dataset.ticketId===id));
+  $("supportChatName").textContent=ticket.customer_name;
+  $("supportChatInfo").textContent=ticket.subject+" · "+ticket.customer_email;
+  const st=supportState(ticket.status);
+  $("supportChatStatus").className="support-state "+st[1];
+  $("supportChatStatus").textContent=st[0];
+  $("supportReplyText").disabled=ticket.status==="closed";
+  $("supportReplyForm").querySelector("button").disabled=ticket.status==="closed";
+  $("supportMessages").innerHTML='<div class="table-empty">جاري تحميل المحادثة...</div>';
+  const {data,error}=await supabase.from("support_messages").select("id,sender_role,body,created_at").eq("ticket_id",id).order("created_at",{ascending:true});
+  if(error){$("supportMessages").innerHTML='<div class="table-empty">تعذر تحميل المحادثة: '+safe(error.message)+'</div>';return;}
+  $("supportMessages").innerHTML=(data||[]).map(m=>'<article class="support-message '+(m.sender_role==="admin"?"admin":"customer")+'"><div class="support-message-meta"><b>'+(m.sender_role==="admin"?"ZARO Support":safe(ticket.customer_name))+'</b><time>'+formatDate(m.created_at)+'</time></div><p>'+safe(m.body).replace(/\\n/g,"<br>")+'</p></article>').join("")||'<div class="table-empty">المحادثة فارغة</div>';
+  $("supportMessages").scrollTop=$("supportMessages").scrollHeight;
+}
+$("supportReplyForm")?.addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(!activeSupportTicket || activeSupportTicket.status==="closed") return;
+  const body=$("supportReplyText").value.trim(); if(!body) return;
+  const button=$("supportReplyForm").querySelector("button");
+  button.disabled=true; $("supportReplyFeedback").textContent="جاري إرسال الرد...";
+  const {error}=await supabase.from("support_messages").insert({ticket_id:activeSupportTicket.id,sender_role:"admin",body});
+  if(error){$("supportReplyFeedback").textContent="فشل إرسال الرد: "+error.message;button.disabled=false;return;}
+  const {error:updateError}=await supabase.from("support_tickets").update({status:"answered",updated_at:new Date().toISOString()}).eq("id",activeSupportTicket.id);
+  if(updateError) console.error(updateError);
+  $("supportReplyText").value=""; $("supportReplyFeedback").textContent="تم إرسال الرد بنجاح.";
+  await loadSupportTickets();
+});
+$("supportRefresh")?.addEventListener("click",loadSupportTickets);
+
+
 document.querySelectorAll("[data-page]").forEach(button => {
   button.addEventListener("click", () => {
     const page = button.dataset.page;
     document.querySelectorAll(".dashboard-page").forEach(section => section.classList.remove("active"));
     document.querySelectorAll(".nav-item").forEach(item => item.classList.toggle("active", item.dataset.page === page));
     $(`page-${page}`)?.classList.add("active");
-    const names = { overview:"نظرة عامة", orders:"الطلبات", products:"المنتجات", customers:"العملاء", settings:"الإعدادات" };
+    const names = { overview:"نظرة عامة", orders:"الطلبات", support:"خدمة العملاء", products:"المنتجات", customers:"العملاء", settings:"الإعدادات" };
     $("pageTitle").textContent = names[page] || "لوحة التحكم";
+    if (page === "support") loadSupportTickets();
     closeSidebar();
   });
 });
