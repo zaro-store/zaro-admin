@@ -247,6 +247,7 @@ async function restoreSession() {
   if (session?.user?.id === ADMIN_UID) {
     showDashboard();
     await loadOrders();
+    await loadSupportTickets();
   } else {
     if (session) await supabase.auth.signOut();
     showLogin();
