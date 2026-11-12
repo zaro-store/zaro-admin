@@ -135,6 +135,7 @@ loginForm.addEventListener("submit", async (event) => {
     showDashboard();
     await loadOrders();
     await loadSupportTickets();
+    startSupportRealtime();
   } catch (error) {
     showMessage(error.message || "تعذر تسجيل الدخول");
   } finally {
@@ -143,6 +144,7 @@ loginForm.addEventListener("submit", async (event) => {
 });
 $("logoutButton").addEventListener("click", async () => {
   await supabase.auth.signOut();
+  stopSupportRealtime();
   orders = [];
   showLogin();
 });
@@ -213,6 +215,27 @@ $("supportReplyForm")?.addEventListener("submit",async e=>{
 });
 $("supportRefresh")?.addEventListener("click",loadSupportTickets);
 
+// Live updates for the admin inbox. Supabase Realtime must include both support tables.
+let supportRealtimeChannel = null;
+function startSupportRealtime() {
+  if (supportRealtimeChannel) return;
+  supportRealtimeChannel = supabase.channel("zaro-admin-support-live")
+    .on("postgres_changes", { event: "*", schema: "public", table: "support_tickets" }, () => {
+      loadSupportTickets();
+    })
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "support_messages" }, payload => {
+      if (activeSupportTicket && payload.new?.ticket_id === activeSupportTicket.id) {
+        openSupportTicket(activeSupportTicket.id, false);
+      }
+    })
+    .subscribe(status => console.log("ZARO support realtime:", status));
+}
+function stopSupportRealtime() {
+  if (!supportRealtimeChannel) return;
+  supabase.removeChannel(supportRealtimeChannel);
+  supportRealtimeChannel = null;
+}
+
 
 document.querySelectorAll("[data-page]").forEach(button => {
   button.addEventListener("click", () => {
@@ -248,6 +271,7 @@ async function restoreSession() {
     showDashboard();
     await loadOrders();
     await loadSupportTickets();
+    startSupportRealtime();
   } else {
     if (session) await supabase.auth.signOut();
     showLogin();
