@@ -1,0 +1,19 @@
+{
+  "name": "ZARO Admin Control Center",
+  "short_name": "ZARO Admin",
+  "description": "ZARO Gaming Store Management Application",
+  "start_url": "./admin.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#090a0e",
+  "theme_color": "#090a0e",
+  "icons": [
+    {
+      "src": "./zaro-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
