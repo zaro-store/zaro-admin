@@ -289,7 +289,8 @@ document.querySelectorAll("[data-page]").forEach(button => {
     $(`page-${page}`)?.classList.add("active");
     const names = { overview:"نظرة عامة", orders:"الطلبات", support:"خدمة العملاء", products:"المنتجات", customers:"العملاء", settings:"الإعدادات" };
     $("pageTitle").textContent = names[page] || "لوحة التحكم";
-    if (page === "support") loadSupportTickets();\n    if (page === "customers") loadCustomerAccounts();
+    if (page === "support") loadSupportTickets();
+    if (page === "customers") loadCustomerAccounts();
     closeSidebar();
   });
 });
