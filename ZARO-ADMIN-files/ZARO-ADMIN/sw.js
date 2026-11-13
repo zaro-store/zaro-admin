@@ -1,4 +1,4 @@
-const CACHE_NAME = "zaro-admin-v3";
+const CACHE_NAME = "zaro-admin-v4";
 const APP_FILES = [
   "./",
   "./admin.html",
@@ -29,35 +29,19 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   const request = event.request;
   if (request.method !== "GET") return;
-
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  // HTML: الشبكة أولاً حتى تظهر آخر التحديثات.
-  if (request.mode === "navigate") {
-    event.respondWith(
-      fetch(request)
-        .then(response => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
-          return response;
-        })
-        .catch(async () => await caches.match(request) || await caches.match("./admin.html"))
-    );
-    return;
-  }
-
-  // ملفات الواجهة: استخدم النسخة المخزنة ثم حدّثها من الشبكة.
+  // Always try the network first so installed apps receive current files.
   event.respondWith(
-    caches.match(request).then(cached => {
-      const network = fetch(request).then(response => {
+    fetch(request)
+      .then(response => {
         if (response.ok) {
           const copy = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
         }
         return response;
-      });
-      return cached || network;
-    })
+      })
+      .catch(async () => await caches.match(request) || (request.mode === "navigate" ? await caches.match("./admin.html") : Response.error()))
   );
 });
