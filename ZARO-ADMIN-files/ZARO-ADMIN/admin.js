@@ -161,10 +161,16 @@ async function loadCustomerAccounts() {
   body.innerHTML = '<tr><td colspan="6" class="table-empty">جاري تحميل الحسابات...</td></tr>';
   const {data,error} = await supabase.from("customer_profiles").select("user_id,full_name,email,zaro_id,status,created_at").order("created_at",{ascending:false});
   if(error) {
-    body.innerHTML = '<tr><td colspan="6" class="table-empty">تعذر تحميل الحسابات: '+safe(error.message)+'</td></tr>';
-    $("customerAccountsFeedback").textContent = "شغّل ملف customer_accounts_setup.sql في Supabase أولاً.";
+    console.error("Load customer accounts error:", error);
+    const detail = [error.message, error.code, error.details, error.hint].filter(Boolean).join(" | ");
+    body.innerHTML = '<tr><td colspan="6" class="table-empty">تعذر تحميل الحسابات: '+safe(error.message || "خطأ غير معروف")+'</td></tr>';
+    const missingTable = error.code === "42P01" || error.code === "PGRST205";
+    $("customerAccountsFeedback").textContent = missingTable
+      ? "جدول customer_profiles غير ظاهر لـ Supabase. لا تعِد تشغيل SQL الآن؛ راجع اسم الجدول وتحديث مخطط API."
+      : "فشل الاتصال بحسابات العملاء: " + detail;
     return;
   }
+  $("customerAccountsFeedback").textContent = "تم تحميل حسابات العملاء بنجاح.";
   customerAccounts = data || [];
   $("customerCountAll").textContent = customerAccounts.length;
   $("customerCountPending").textContent = customerAccounts.filter(x=>x.status==="pending").length;
