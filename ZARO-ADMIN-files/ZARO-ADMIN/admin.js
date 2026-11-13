@@ -152,6 +152,53 @@ $("refreshButton").addEventListener("click", loadOrders);
 $("ordersRefresh").addEventListener("click", loadOrders);
 $("orderSearch").addEventListener("input", event => renderAllOrders(event.target.value));
 
+// ZARO CUSTOMER ACCOUNT REVIEW
+let customerAccounts = [];
+const customerStatusLabel = status => ({pending:"بانتظار التفعيل",active:"مفعّل",rejected:"مرفوض",suspended:"موقوف"}[status] || status);
+async function loadCustomerAccounts() {
+  const body = $("customerAccountsTable");
+  if (!body) return;
+  body.innerHTML = '<tr><td colspan="6" class="table-empty">جاري تحميل الحسابات...</td></tr>';
+  const {data,error} = await supabase.from("customer_profiles").select("user_id,full_name,email,zaro_id,status,created_at").order("created_at",{ascending:false});
+  if(error) {
+    body.innerHTML = '<tr><td colspan="6" class="table-empty">تعذر تحميل الحسابات: '+safe(error.message)+'</td></tr>';
+    $("customerAccountsFeedback").textContent = "شغّل ملف customer_accounts_setup.sql في Supabase أولاً.";
+    return;
+  }
+  customerAccounts = data || [];
+  $("customerCountAll").textContent = customerAccounts.length;
+  $("customerCountPending").textContent = customerAccounts.filter(x=>x.status==="pending").length;
+  $("customerCountActive").textContent = customerAccounts.filter(x=>x.status==="active").length;
+  $("customerCountOther").textContent = customerAccounts.filter(x=>["rejected","suspended"].includes(x.status)).length;
+  renderCustomerAccounts($("customerSearch").value);
+}
+function renderCustomerAccounts(query="") {
+  const q=query.trim().toLowerCase();
+  const rows=customerAccounts.filter(x=>[x.full_name,x.email,x.zaro_id,x.status].some(v=>String(v||"").toLowerCase().includes(q)));
+  $("customerAccountsTable").innerHTML=rows.length?rows.map(x=>{
+    const actions=x.status==="pending"
+      ? '<button class="primary-button customer-action" data-user="'+safe(x.user_id)+'" data-decision="active">تفعيل</button> <button class="secondary-button customer-action" data-user="'+safe(x.user_id)+'" data-decision="rejected">رفض</button>'
+      : x.status==="active"
+        ? '<button class="secondary-button customer-action" data-user="'+safe(x.user_id)+'" data-decision="suspended">إيقاف</button>'
+        : '<button class="primary-button customer-action" data-user="'+safe(x.user_id)+'" data-decision="active">تفعيل</button>';
+    return '<tr><td>'+safe(x.full_name||"—")+'</td><td>'+safe(x.email)+'</td><td><span class="order-id">'+safe(x.zaro_id||"—")+'</span></td><td><span class="status-pill '+(x.status==="active"?"completed":x.status==="pending"?"pending":"cancelled")+'">'+safe(customerStatusLabel(x.status))+'</span></td><td>'+formatDate(x.created_at)+'</td><td>'+actions+'</td></tr>';
+  }).join(""):'<tr><td colspan="6" class="table-empty">لا توجد حسابات مطابقة</td></tr>';
+  document.querySelectorAll(".customer-action").forEach(button=>button.addEventListener("click",()=>reviewCustomer(button.dataset.user,button.dataset.decision,button)));
+}
+async function reviewCustomer(userId,decision,button) {
+  const labels={active:"تفعيل الحساب",rejected:"رفض الحساب",suspended:"إيقاف الحساب"};
+  if(!confirm("هل تريد تنفيذ: "+labels[decision]+"؟")) return;
+  button.disabled=true;
+  $("customerAccountsFeedback").textContent="جاري تحديث الحساب...";
+  const {data,error}=await supabase.rpc("zaro_review_customer",{p_user_id:userId,p_decision:decision});
+  button.disabled=false;
+  if(error){$("customerAccountsFeedback").textContent="تعذر تحديث الحساب: "+error.message;return;}
+  $("customerAccountsFeedback").textContent=decision==="active"?"تم تفعيل الحساب. ZARO ID: "+data:"تم تحديث حالة الحساب.";
+  await loadCustomerAccounts();
+}
+$("customersRefresh")?.addEventListener("click",loadCustomerAccounts);
+$("customerSearch")?.addEventListener("input",e=>renderCustomerAccounts(e.target.value));
+
 // ZARO CUSTOMER SUPPORT INBOX
 let supportTickets = [];
 let activeSupportTicket = null;
@@ -242,7 +289,7 @@ document.querySelectorAll("[data-page]").forEach(button => {
     $(`page-${page}`)?.classList.add("active");
     const names = { overview:"نظرة عامة", orders:"الطلبات", support:"خدمة العملاء", products:"المنتجات", customers:"العملاء", settings:"الإعدادات" };
     $("pageTitle").textContent = names[page] || "لوحة التحكم";
-    if (page === "support") loadSupportTickets();
+    if (page === "support") loadSupportTickets();\n    if (page === "customers") loadCustomerAccounts();
     closeSidebar();
   });
 });
