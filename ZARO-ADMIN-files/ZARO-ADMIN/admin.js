@@ -279,8 +279,9 @@ restoreSession();
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {
     try {
-      await navigator.serviceWorker.register("./sw.js");
-      console.log("ZARO Admin PWA registered");
+      const registration = await navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" });
+      await registration.update();
+      console.log("ZARO Admin PWA registered and update checked");
     } catch (error) {
       console.error("PWA registration failed:", error);
     }
