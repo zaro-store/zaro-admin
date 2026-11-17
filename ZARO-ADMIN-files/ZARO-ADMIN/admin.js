@@ -70,6 +70,41 @@ function orderCells(order, includeAction = false) {
       <option value="">تغيير الحالة</option><option value="pending">قيد الانتظار</option><option value="processing">قيد التنفيذ</option><option value="completed">مكتمل</option><option value="cancelled">ملغي</option>
     </select></td>` : ""}`;
 }
+
+/* ZARO DASHBOARD ANALYTICS */
+let salesTrendChart=null, ordersStatusChart=null, topGamesChart=null;
+const chartPalette={orange:"#ff8138",green:"#43d6a0",blue:"#65aaff",purple:"#a78bfa",red:"#ff7373",muted:"#7f8796"};
+const isCompletedOrder=o=>["completed","complete","delivered"].includes(String(o.status||"").toLowerCase());
+const analyticsDate=o=>{const d=new Date(o.created_at||o.createdAt||o.date);return Number.isNaN(d.getTime())?null:d;};
+const moneyEGP=n=>Number(n||0).toLocaleString("ar-EG",{maximumFractionDigits:2})+" ج.م";
+function destroyAnalyticsCharts(){
+  [salesTrendChart,ordersStatusChart,topGamesChart].forEach(c=>{if(c)c.destroy();});
+  salesTrendChart=ordersStatusChart=topGamesChart=null;
+}
+function renderDashboardAnalytics(){
+  if(typeof Chart==="undefined"){$("analyticsNote").textContent="مكتبة الرسوم لم يتم تحميلها. حدّث الصفحة وتأكد من الاتصال بالإنترنت.";return;}
+  const range=$("analyticsRange")?.value||"30";
+  const now=new Date(); const start=new Date(now); start.setHours(0,0,0,0);
+  if(range!=="all") start.setDate(start.getDate()-Number(range)+1);
+  const scoped=orders.filter(o=>{const d=analyticsDate(o);return d&&(range==="all"||d>=start)&&d<=now;});
+  const completed=scoped.filter(isCompletedOrder);
+  const revenue=completed.reduce((sum,o)=>sum+(Number(o.amount)||0),0);
+  $("analyticsRevenue").textContent=moneyEGP(revenue);
+  $("analyticsCompleted").textContent=completed.length.toLocaleString("ar-EG");
+  $("analyticsAverage").textContent=moneyEGP(completed.length?revenue/completed.length:0);
+  $("analyticsNote").textContent=scoped.length?"تم تحليل "+scoped.length.toLocaleString("ar-EG")+" طلبًا مسجلًا. قيمة المبيعات محسوبة من الطلبات المكتملة فقط.":"لا توجد طلبات بتاريخ صالح في الفترة المحددة.";
+  const days=range==="all"?Math.min(30,Math.max(7,Math.ceil((now-Math.min(...scoped.map(o=>analyticsDate(o).getTime()),now.getTime()))/86400000)+1)):Number(range);
+  const labels=[],values=[];
+  for(let i=days-1;i>=0;i--){const d=new Date(now);d.setHours(0,0,0,0);d.setDate(d.getDate()-i);labels.push(d.toLocaleDateString("ar-EG",{day:"numeric",month:"short"}));const key=d.toDateString();values.push(completed.filter(o=>analyticsDate(o)?.toDateString()===key).reduce((sum,o)=>sum+(Number(o.amount)||0),0));}
+  const baseOptions={responsive:true,maintainAspectRatio:false,animation:{duration:1100,easing:"easeOutQuart"},plugins:{legend:{labels:{color:"#b8bec9",font:{family:"Cairo",size:10},usePointStyle:true,boxWidth:8}},tooltip:{backgroundColor:"#171a22",titleFont:{family:"Cairo"},bodyFont:{family:"Cairo"},padding:11,cornerRadius:9}}};
+  destroyAnalyticsCharts();
+  salesTrendChart=new Chart($("salesTrendChart"),{type:"line",data:{labels,datasets:[{label:"المبيعات المكتملة",data:values,borderColor:chartPalette.orange,backgroundColor:"rgba(255,129,56,.14)",fill:true,tension:.38,borderWidth:2.5,pointRadius:2.5,pointHoverRadius:6,pointBackgroundColor:chartPalette.orange}]},options:{...baseOptions,plugins:{...baseOptions.plugins,legend:{display:false}},scales:{x:{ticks:{color:"#858d9b",maxTicksLimit:8,font:{family:"Cairo",size:9}},grid:{display:false}},y:{beginAtZero:true,ticks:{color:"#858d9b",font:{family:"Cairo",size:9},callback:v=>Number(v).toLocaleString("ar-EG")},grid:{color:"rgba(255,255,255,.055)"}}}}});
+  const counts=[scoped.length,scoped.filter(o=>["pending","processing","demo",null,""].includes(o.status)).length,scoped.filter(o=>["cancelled","canceled","failed"].includes(String(o.status||"").toLowerCase())).length];
+  ordersStatusChart=new Chart($("ordersStatusChart"),{type:"doughnut",data:{labels:["مكتمل","قيد الانتظار / التنفيذ","ملغي / فاشل"],datasets:[{data:[completed.length,counts[1],counts[2]],backgroundColor:[chartPalette.green,chartPalette.blue,chartPalette.red],borderColor:"#151820",borderWidth:4,hoverOffset:10}]},options:{...baseOptions,cutout:"70%",plugins:{...baseOptions.plugins,legend:{position:"bottom",labels:{...baseOptions.plugins.legend.labels,padding:15}}}}});
+  const gameMap={};scoped.forEach(o=>{const name=String(o.game||o.game_name||"غير محدد");gameMap[name]=(gameMap[name]||0)+1;});
+  const top=Object.entries(gameMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  topGamesChart=new Chart($("topGamesChart"),{type:"bar",data:{labels:top.map(x=>x[0]),datasets:[{label:"عدد الطلبات",data:top.map(x=>x[1]),backgroundColor:["#ff8138","#65aaff","#43d6a0","#a78bfa","#ffb65c","#ff7373"],borderRadius:7,maxBarThickness:28}]},options:{...baseOptions,indexAxis:"y",plugins:{...baseOptions.plugins,legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0,color:"#858d9b"},grid:{color:"rgba(255,255,255,.055)"}},y:{ticks:{color:"#c2c7d0",font:{family:"Cairo",size:10}},grid:{display:false}}}}});
+}
 function renderOrders() {
   $("totalOrders").textContent = orders.length;
   $("completedOrders").textContent = orders.filter(o => ["completed","complete","delivered"].includes(String(o.status).toLowerCase())).length;
@@ -81,6 +116,7 @@ function renderOrders() {
     ? orders.slice(0,5).map(o => `<tr>${orderCells(o)}</tr>`).join("")
     : `<tr><td colspan="6" class="table-empty">لا توجد طلبات حتى الآن</td></tr>`;
   renderAllOrders($("orderSearch").value);
+  renderDashboardAnalytics();
 }
 function renderAllOrders(query = "") {
   const q = query.trim().toLowerCase();
@@ -152,6 +188,7 @@ $("logoutButton").addEventListener("click", async () => {
 $("refreshButton").addEventListener("click", loadOrders);
 $("ordersRefresh").addEventListener("click", loadOrders);
 $("orderSearch").addEventListener("input", event => renderAllOrders(event.target.value));
+$("analyticsRange").addEventListener("change",renderDashboardAnalytics);
 
 // ZARO CUSTOMER ACCOUNT REVIEW
 let customerAccounts = [];
