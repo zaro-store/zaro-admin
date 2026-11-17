@@ -92,7 +92,61 @@
 <section class="content-card"><div class="support-admin-heading"><div><h2>صندوق الرسائل</h2><p>محادثات العملاء</p></div><span class="support-total" id="supportTotal">0</span></div><div id="supportTicketList" class="support-ticket-list"><div class="table-empty">جاري تحميل الرسائل...</div></div></section>
 <section class="content-card"><div class="support-admin-heading"><div><h2 id="supportChatName">المحادثة</h2><p id="supportChatInfo">اختار محادثة من القائمة</p></div><span class="support-state" id="supportChatStatus">—</span></div><div id="supportMessages" class="support-messages"><div class="table-empty">لم يتم اختيار محادثة</div></div><form id="supportReplyForm" class="support-reply-form"><textarea id="supportReplyText" rows="3" placeholder="اكتب ردك للعميل..." required disabled></textarea><button class="primary-button" type="submit" disabled>إرسال الرد</button><p id="supportReplyFeedback" aria-live="polite"></p></form></section>
 </div></section>
-<section class="dashboard-page" id="page-products"><div class="section-heading page-heading"><div><span class="eyebrow">CATALOG</span><h1>المنتجات</h1><p>إدارة باقات الألعاب وأسعارها.</p></div></div><div class="content-card placeholder-card"><i class="fa-solid fa-cubes"></i><h2>إدارة المنتجات قريباً</h2><p>القسم ده واجهة مبدئية، ولسه مش مربوط بجدول منتجات في قاعدة البيانات.</p></div></section>
+<section class="dashboard-page" id="page-products">
+  <div class="section-heading page-heading">
+    <div><span class="eyebrow">CATALOG CONTROL</span><h1>إدارة المنتجات</h1><p>أضف الألعاب ونظّم الباقات والأسعار وحالة الظهور في المتجر.</p></div>
+    <button class="secondary-button" id="productsRefresh"><i class="fa-solid fa-rotate"></i> تحديث الكتالوج</button>
+  </div>
+  <div class="catalog-summary stats-grid">
+    <article class="stat-card"><div class="stat-label">الألعاب المسجلة</div><strong id="catalogGameCount">0</strong><small>كل الألعاب في الكتالوج</small></article>
+    <article class="stat-card"><div class="stat-label">الألعاب المفعلة</div><strong id="catalogActiveGameCount">0</strong><small>متاحة للعرض بالمتجر</small></article>
+    <article class="stat-card"><div class="stat-label">الباقات المسجلة</div><strong id="catalogPackageCount">0</strong><small>كل الباقات</small></article>
+    <article class="stat-card"><div class="stat-label">الباقات المفعلة</div><strong id="catalogActivePackageCount">0</strong><small>متاحة للبيع بعد ربط المتجر</small></article>
+  </div>
+  <div class="catalog-layout">
+    <section class="content-card catalog-editor">
+      <div class="catalog-card-heading"><div><span class="eyebrow">GAME DETAILS</span><h2 id="gameFormTitle">إضافة لعبة جديدة</h2></div><span class="catalog-icon"><i class="fa-solid fa-gamepad"></i></span></div>
+      <form id="catalogGameForm" class="catalog-form">
+        <input type="hidden" id="catalogGameId">
+        <div class="catalog-fields two">
+          <label>اسم اللعبة بالعربي<input id="catalogGameAr" maxlength="100" required placeholder="فري فاير"></label>
+          <label>اسم اللعبة بالإنجليزي<input id="catalogGameEn" maxlength="100" required placeholder="Free Fire"></label>
+          <label>معرّف اللعبة (slug)<input id="catalogGameSlug" maxlength="80" required placeholder="free-fire" dir="ltr"></label>
+          <label>اسم العملة<input id="catalogCurrency" maxlength="60" placeholder="Diamonds / UC"></label>
+          <label class="full">رابط صورة اللعبة<input id="catalogGameImage" type="url" placeholder="https://... " dir="ltr"></label>
+        </div>
+        <label class="catalog-check"><input id="catalogGameActive" type="checkbox"> تفعيل اللعبة وإظهارها كمتاحة</label>
+        <div class="catalog-actions"><button class="primary-button" type="submit" id="catalogGameSave">حفظ اللعبة</button><button class="secondary-button" type="button" id="catalogGameCancel" hidden>إلغاء التعديل</button></div>
+        <p class="catalog-feedback" id="catalogGameFeedback" role="status"></p>
+      </form>
+    </section>
+    <section class="content-card catalog-editor">
+      <div class="catalog-card-heading"><div><span class="eyebrow">PACKAGE DETAILS</span><h2 id="packageFormTitle">إضافة باقة</h2></div><span class="catalog-icon"><i class="fa-solid fa-box-open"></i></span></div>
+      <form id="catalogPackageForm" class="catalog-form">
+        <input type="hidden" id="catalogPackageId">
+        <label>اللعبة<select id="catalogPackageGame" required><option value="">اختر اللعبة</option></select></label>
+        <div class="catalog-fields two">
+          <label>اسم الباقة<input id="catalogPackageName" maxlength="120" required placeholder="100 Diamonds"></label>
+          <label>الكمية / الوصف<input id="catalogPackageAmount" maxlength="100" placeholder="100 Diamonds"></label>
+          <label>سعر المورد<input id="catalogSupplierCost" type="number" min="0" step="0.01" placeholder="يُترك فارغًا لحين تأكيد المورد"></label>
+          <label>سعر البيع (ج.م)<input id="catalogSellingPrice" type="number" min="0" step="0.01" placeholder="مثال: 50"></label>
+          <label class="full">Supplier SKU<input id="catalogSupplierSku" maxlength="120" dir="ltr" placeholder="يُضاف بعد استلام كتالوج المورد"></label>
+        </div>
+        <label class="catalog-check"><input id="catalogPackageActive" type="checkbox"> تفعيل الباقة</label>
+        <div class="catalog-actions"><button class="primary-button" type="submit" id="catalogPackageSave">حفظ الباقة</button><button class="secondary-button" type="button" id="catalogPackageCancel" hidden>إلغاء التعديل</button></div>
+        <p class="catalog-feedback" id="catalogPackageFeedback" role="status"></p>
+      </form>
+    </section>
+  </div>
+  <section class="content-card catalog-list-card">
+    <div class="catalog-card-heading"><div><span class="eyebrow">GAME LIBRARY</span><h2>الألعاب المسجلة</h2><p>اختار لعبة لإدارة باقاتها أو تعديل بياناتها.</p></div></div>
+    <div class="table-wrap"><table><thead><tr><th>اللعبة</th><th>المعرّف</th><th>العملة</th><th>الباقات</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="catalogGamesTable"><tr><td colspan="6" class="table-empty">جاري تحميل الألعاب...</td></tr></tbody></table></div>
+  </section>
+  <section class="content-card catalog-list-card">
+    <div class="catalog-card-heading"><div><span class="eyebrow">PACKAGE LIBRARY</span><h2>باقات اللعبة المحددة</h2><p id="catalogPackagesSubtitle">اختار لعبة من القائمة لعرض باقاتها.</p></div><span class="catalog-selected" id="catalogSelectedGame">لم يتم اختيار لعبة</span></div>
+    <div class="table-wrap"><table><thead><tr><th>الباقة</th><th>الكمية</th><th>سعر المورد</th><th>سعر البيع</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="catalogPackagesTable"><tr><td colspan="6" class="table-empty">اختر لعبة أولاً.</td></tr></tbody></table></div>
+  </section>
+</section>
         <section class="dashboard-page" id="page-customers">
 <div class="section-heading page-heading"><div><span class="eyebrow">CUSTOMER ACCOUNTS</span><h1>إدارة حسابات العملاء</h1><p>راجع طلبات التسجيل وفعّل الحسابات أو ارفضها أو أوقفها.</p></div><button class="secondary-button" id="customersRefresh"><i class="fa-solid fa-rotate"></i> تحديث</button></div>
 <div class="stats-grid">
