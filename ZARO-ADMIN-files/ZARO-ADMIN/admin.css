@@ -70,3 +70,28 @@
 .catalog-form button:disabled{opacity:.55;cursor:wait}
 @media(max-width:1050px){.catalog-layout{grid-template-columns:1fr}}
 @media(max-width:520px){.catalog-fields.two{grid-template-columns:1fr}.catalog-card-heading{align-items:flex-start}.catalog-selected{max-width:125px;white-space:normal;text-align:center}}
+
+/* ANIMATED STORE ANALYTICS */
+.analytics-section{margin-top:30px}
+.analytics-heading{margin:0 0 16px}
+.analytics-heading h2{font-size:17px;margin:7px 0 0}
+.analytics-range{display:flex;align-items:center;gap:9px;color:#9da4b1;font-size:10px}
+.analytics-range select{background:#171a22;color:#eee;border:1px solid var(--line);border-radius:9px;padding:9px 12px;font:10px Cairo,sans-serif}
+.analytics-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:15px}
+.analytics-kpi{padding:16px 18px;border:1px solid var(--line);border-radius:13px;background:linear-gradient(145deg,#171a22,#111319);min-width:0}
+.analytics-kpi span,.analytics-kpi small{display:block;color:#9299a7;font-size:9px}
+.analytics-kpi strong{display:block;font:700 19px Orbitron,Cairo,sans-serif;color:#f4f5f7;margin:9px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.analytics-kpi.muted-kpi strong{font:700 15px Cairo,sans-serif;color:#9299a7}
+.analytics-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.analytics-card{margin:0;min-width:0;padding:18px}
+.analytics-wide{grid-column:1/-1}
+.analytics-card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:13px}
+.analytics-card-head h3{font-size:13px;margin:0}
+.analytics-card-head p{font-size:9px;color:#858d9b;margin:5px 0 0}
+.chart-live-dot{font:8px Orbitron,sans-serif;color:#53d9a2;letter-spacing:1px}
+.chart-live-dot:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#43d6a0;box-shadow:0 0 10px #43d6a0;margin-left:7px}
+.chart-wrap{position:relative;height:260px;width:100%}
+.chart-doughnut{height:260px;max-width:370px;margin:auto}
+.analytics-note{font-size:9px;color:#747d8b;margin:12px 3px}
+@media(max-width:900px){.analytics-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.analytics-grid{grid-template-columns:1fr}.analytics-wide{grid-column:auto}.analytics-heading{align-items:flex-start;gap:12px;flex-direction:column}.analytics-kpi{padding:13px}.analytics-kpi strong{font-size:16px}.chart-wrap{height:230px}}
