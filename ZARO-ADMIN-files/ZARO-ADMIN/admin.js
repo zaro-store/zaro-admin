@@ -135,6 +135,7 @@ loginForm.addEventListener("submit", async (event) => {
     showDashboard();
     await loadOrders();
     await loadSupportTickets();
+    await loadCatalog();
     startSupportRealtime();
   } catch (error) {
     showMessage(error.message || "تعذر تسجيل الدخول");
@@ -287,6 +288,159 @@ function stopSupportRealtime() {
   supportRealtimeChannel = null;
 }
 
+
+/* ZARO PRODUCT CATALOG */
+let catalogGames = [];
+let catalogPackages = [];
+let selectedCatalogGameId = "";
+const catalogFeedback = (id, message, isError=false) => {
+  const node=$(id); if(!node) return;
+  node.textContent=message;
+  node.classList.toggle("error",isError);
+};
+function resetGameForm(){
+  $("catalogGameForm").reset(); $("catalogGameId").value="";
+  $("catalogGameActive").checked=false;
+  $("gameFormTitle").textContent="إضافة لعبة جديدة";
+  $("catalogGameSave").textContent="حفظ اللعبة";
+  $("catalogGameCancel").hidden=true;
+}
+function resetPackageForm(){
+  $("catalogPackageForm").reset(); $("catalogPackageId").value="";
+  $("catalogPackageActive").checked=false;
+  $("packageFormTitle").textContent="إضافة باقة";
+  $("catalogPackageSave").textContent="حفظ الباقة";
+  $("catalogPackageCancel").hidden=true;
+}
+function renderCatalogStats(){
+  $("catalogGameCount").textContent=catalogGames.length;
+  $("catalogActiveGameCount").textContent=catalogGames.filter(g=>g.is_active).length;
+  $("catalogPackageCount").textContent=catalogPackages.length;
+  $("catalogActivePackageCount").textContent=catalogPackages.filter(p=>p.is_active).length;
+}
+function renderCatalogGameOptions(){
+  const select=$("catalogPackageGame"), previous=select.value || selectedCatalogGameId;
+  select.innerHTML='<option value="">اختر اللعبة</option>'+catalogGames.map(g=>'<option value="'+safe(g.id)+'">'+safe(g.name_ar)+' · '+safe(g.name_en)+'</option>').join("");
+  if(catalogGames.some(g=>g.id===previous)) select.value=previous;
+  else if(catalogGames.length) select.value=catalogGames[0].id;
+}
+function renderCatalogGames(){
+  const body=$("catalogGamesTable");
+  body.innerHTML=catalogGames.length?catalogGames.map(g=>{
+    const count=catalogPackages.filter(p=>p.game_id===g.id).length;
+    return '<tr><td><b>'+safe(g.name_ar)+'</b><br><small>'+safe(g.name_en)+'</small></td><td dir="ltr">'+safe(g.slug)+'</td><td>'+safe(g.currency_label||"—")+'</td><td>'+count+'</td><td><span class="catalog-state '+(g.is_active?"active":"inactive")+'">'+(g.is_active?"مفعّلة":"متوقفة")+'</span></td><td><div class="catalog-row-actions"><button class="catalog-action" data-catalog-game-edit="'+safe(g.id)+'">تعديل</button><button class="catalog-action" data-catalog-game-select="'+safe(g.id)+'">الباقات</button><button class="catalog-action danger" data-catalog-game-delete="'+safe(g.id)+'">حذف</button></div></td></tr>';
+  }).join(""):'<tr><td colspan="6" class="table-empty">لا توجد ألعاب بعد. أضف أول لعبة من النموذج بالأعلى.</td></tr>';
+}
+function renderCatalogPackages(){
+  const game=catalogGames.find(g=>g.id===selectedCatalogGameId);
+  $("catalogSelectedGame").textContent=game?game.name_ar:"لم يتم اختيار لعبة";
+  $("catalogPackagesSubtitle").textContent=game?"باقات "+game.name_ar:"اختار لعبة من القائمة لعرض باقاتها.";
+  const rows=catalogPackages.filter(p=>p.game_id===selectedCatalogGameId);
+  $("catalogPackagesTable").innerHTML=game?(rows.length?rows.map(p=>'<tr><td><b>'+safe(p.package_name)+'</b><br><small dir="ltr">'+safe(p.supplier_sku||"بدون SKU")+'</small></td><td>'+safe(p.amount_label||"—")+'</td><td>'+(p.supplier_cost===null?"غير محدد":Number(p.supplier_cost).toFixed(2)+" ج.م")+'</td><td>'+(p.selling_price===null?"غير محدد":Number(p.selling_price).toFixed(2)+" ج.م")+'</td><td><span class="catalog-state '+(p.is_active?"active":"inactive")+'">'+(p.is_active?"مفعّلة":"متوقفة")+'</span></td><td><div class="catalog-row-actions"><button class="catalog-action" data-catalog-package-edit="'+safe(p.id)+'">تعديل</button><button class="catalog-action danger" data-catalog-package-delete="'+safe(p.id)+'">حذف</button></div></td></tr>').join(""):'<tr><td colspan="6" class="table-empty">لا توجد باقات لهذه اللعبة.</td></tr>'):'<tr><td colspan="6" class="table-empty">اختر لعبة أولاً.</td></tr>';
+}
+async function loadCatalog(){
+  $("catalogGamesTable").innerHTML='<tr><td colspan="6" class="table-empty">جاري تحميل الألعاب...</td></tr>';
+  const [gamesResult,packagesResult]=await Promise.all([
+    supabase.from("catalog_games").select("*").order("sort_order").order("name_en"),
+    supabase.from("catalog_packages").select("*").order("sort_order").order("package_name")
+  ]);
+  if(gamesResult.error||packagesResult.error){
+    const error=gamesResult.error||packagesResult.error;
+    console.error("Catalog load error:",error);
+    $("catalogGamesTable").innerHTML='<tr><td colspan="6" class="table-empty">تعذر تحميل الكتالوج: '+safe(error.message)+'</td></tr>';
+    catalogFeedback("catalogGameFeedback","راجع صلاحيات قاعدة البيانات: "+error.message,true);
+    return;
+  }
+  catalogGames=gamesResult.data||[];
+  catalogPackages=packagesResult.data||[];
+  if(!catalogGames.some(g=>g.id===selectedCatalogGameId)) selectedCatalogGameId=catalogGames[0]?.id||"";
+  renderCatalogGameOptions(); renderCatalogStats(); renderCatalogGames(); renderCatalogPackages();
+}
+$("catalogGameForm").addEventListener("submit",async event=>{
+  event.preventDefault();
+  const id=$("catalogGameId").value;
+  const payload={
+    name_ar:$("catalogGameAr").value.trim(),
+    name_en:$("catalogGameEn").value.trim(),
+    slug:$("catalogGameSlug").value.trim().toLowerCase(),
+    currency_label:$("catalogCurrency").value.trim(),
+    image_url:$("catalogGameImage").value.trim(),
+    is_active:$("catalogGameActive").checked
+  };
+  if(!/^[a-z0-9-]+$/.test(payload.slug)){catalogFeedback("catalogGameFeedback","اكتب المعرّف بحروف إنجليزية صغيرة وأرقام وشرطة فقط.",true);return;}
+  const button=$("catalogGameSave");button.disabled=true;
+  const result=id?await supabase.from("catalog_games").update(payload).eq("id",id):await supabase.from("catalog_games").insert(payload);
+  button.disabled=false;
+  if(result.error){catalogFeedback("catalogGameFeedback","فشل حفظ اللعبة: "+result.error.message,true);return;}
+  catalogFeedback("catalogGameFeedback","تم حفظ بيانات اللعبة.");
+  resetGameForm(); await loadCatalog();
+});
+$("catalogPackageForm").addEventListener("submit",async event=>{
+  event.preventDefault();
+  const id=$("catalogPackageId").value;
+  const supplier=$("catalogSupplierCost").value;
+  const selling=$("catalogSellingPrice").value;
+  const payload={
+    game_id:$("catalogPackageGame").value,
+    package_name:$("catalogPackageName").value.trim(),
+    amount_label:$("catalogPackageAmount").value.trim(),
+    supplier_sku:$("catalogSupplierSku").value.trim()||null,
+    supplier_cost:supplier===""?null:Number(supplier),
+    selling_price:selling===""?null:Number(selling),
+    is_active:$("catalogPackageActive").checked
+  };
+  if(!payload.game_id){catalogFeedback("catalogPackageFeedback","اختار اللعبة أولاً.",true);return;}
+  if((payload.supplier_cost!==null&&payload.supplier_cost<0)||(payload.selling_price!==null&&payload.selling_price<0)){catalogFeedback("catalogPackageFeedback","الأسعار لا يمكن أن تكون سالبة.",true);return;}
+  const button=$("catalogPackageSave");button.disabled=true;
+  const result=id?await supabase.from("catalog_packages").update(payload).eq("id",id):await supabase.from("catalog_packages").insert(payload);
+  button.disabled=false;
+  if(result.error){catalogFeedback("catalogPackageFeedback","فشل حفظ الباقة: "+result.error.message,true);return;}
+  selectedCatalogGameId=payload.game_id;
+  catalogFeedback("catalogPackageFeedback","تم حفظ بيانات الباقة.");
+  resetPackageForm(); await loadCatalog();
+});
+$("catalogGamesTable").addEventListener("click",async event=>{
+  const edit=event.target.closest("[data-catalog-game-edit]");
+  const choose=event.target.closest("[data-catalog-game-select]");
+  const remove=event.target.closest("[data-catalog-game-delete]");
+  if(choose){selectedCatalogGameId=choose.dataset.catalogGameSelect;$("catalogPackageGame").value=selectedCatalogGameId;renderCatalogPackages();return;}
+  if(edit){
+    const g=catalogGames.find(x=>x.id===edit.dataset.catalogGameEdit);if(!g)return;
+    $("catalogGameId").value=g.id;$("catalogGameAr").value=g.name_ar;$("catalogGameEn").value=g.name_en;$("catalogGameSlug").value=g.slug;$("catalogCurrency").value=g.currency_label||"";$("catalogGameImage").value=g.image_url||"";$("catalogGameActive").checked=!!g.is_active;
+    $("gameFormTitle").textContent="تعديل بيانات اللعبة";$("catalogGameSave").textContent="حفظ التعديلات";$("catalogGameCancel").hidden=false;
+    $("catalogGameForm").scrollIntoView({behavior:"smooth",block:"center"});return;
+  }
+  if(remove){
+    const g=catalogGames.find(x=>x.id===remove.dataset.catalogGameDelete);if(!g)return;
+    if(!confirm("حذف لعبة "+g.name_ar+"؟ سيتم حذف باقاتها المرتبطة أيضًا."))return;
+    const {error}=await supabase.from("catalog_games").delete().eq("id",g.id);
+    if(error){catalogFeedback("catalogGameFeedback","فشل الحذف: "+error.message,true);return;}
+    if(selectedCatalogGameId===g.id)selectedCatalogGameId="";
+    await loadCatalog();
+  }
+});
+$("catalogPackagesTable").addEventListener("click",async event=>{
+  const edit=event.target.closest("[data-catalog-package-edit]");
+  const remove=event.target.closest("[data-catalog-package-delete]");
+  if(edit){
+    const p=catalogPackages.find(x=>x.id===edit.dataset.catalogPackageEdit);if(!p)return;
+    $("catalogPackageId").value=p.id;$("catalogPackageGame").value=p.game_id;$("catalogPackageName").value=p.package_name;$("catalogPackageAmount").value=p.amount_label||"";$("catalogSupplierSku").value=p.supplier_sku||"";$("catalogSupplierCost").value=p.supplier_cost??"";$("catalogSellingPrice").value=p.selling_price??"";$("catalogPackageActive").checked=!!p.is_active;
+    $("packageFormTitle").textContent="تعديل الباقة";$("catalogPackageSave").textContent="حفظ التعديلات";$("catalogPackageCancel").hidden=false;
+    $("catalogPackageForm").scrollIntoView({behavior:"smooth",block:"center"});return;
+  }
+  if(remove){
+    const p=catalogPackages.find(x=>x.id===remove.dataset.catalogPackageDelete);if(!p)return;
+    if(!confirm("تأكيد حذف الباقة "+p.package_name+"؟"))return;
+    const {error}=await supabase.from("catalog_packages").delete().eq("id",p.id);
+    if(error){catalogFeedback("catalogPackageFeedback","فشل الحذف: "+error.message,true);return;}
+    await loadCatalog();
+  }
+});
+$("catalogGameCancel").addEventListener("click",resetGameForm);
+$("catalogPackageCancel").addEventListener("click",resetPackageForm);
+$("catalogPackageGame").addEventListener("change",event=>{selectedCatalogGameId=event.target.value;renderCatalogPackages();});
+$("productsRefresh").addEventListener("click",loadCatalog);
+
 document.querySelectorAll("[data-page]").forEach(button => {
   button.addEventListener("click", () => {
     const page = button.dataset.page;
@@ -297,6 +451,7 @@ document.querySelectorAll("[data-page]").forEach(button => {
     $("pageTitle").textContent = names[page] || "لوحة التحكم";
     if (page === "support") loadSupportTickets();
     if (page === "customers") loadCustomerAccounts();
+    if (page === "products") loadCatalog();
     closeSidebar();
   });
 });
