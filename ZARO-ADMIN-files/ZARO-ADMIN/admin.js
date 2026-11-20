@@ -113,7 +113,13 @@ function renderOrders() {
   $("totalSales").textContent = `${sales.toLocaleString("ar-EG")} ج.م`;
   $("sidebarOrderCount").textContent = orders.length;
   $("recentOrders").innerHTML = orders.length
-    ? orders.slice(0,5).map(o => `<tr>${orderCells(o)}</tr>`).join("")
+    ? orders.slice(0,5).map(o => {
+        const id=getField(o,["id","order_id"]), game=getField(o,["game","game_name"]);
+        const player=getField(o,["player_id","playerId","uid","character_id"]);
+        const pack=getField(o,["package","package_name"]), status=getStatus(o.status);
+        const amount=o.amount==null||o.amount===""?"غير محدد":moneyEGP(Number(o.amount));
+        return `<tr><td><span class="order-id">#${safe(String(id).slice(0,8))}</span></td><td>${safe(game)}</td><td>${safe(player)}</td><td>${safe(pack)}</td><td>${safe(amount)}</td><td><span class="status-pill ${status[1]}">${status[0]}</span></td></tr>`;
+      }).join("")
     : `<tr><td colspan="6" class="table-empty">لا توجد طلبات حتى الآن</td></tr>`;
   renderAllOrders($("orderSearch").value);
   renderDashboardAnalytics();
