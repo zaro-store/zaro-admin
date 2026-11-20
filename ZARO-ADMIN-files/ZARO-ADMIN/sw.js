@@ -1,4 +1,4 @@
-const CACHE_NAME = "zaro-admin-v8";
+const CACHE_NAME = "zaro-admin-v9";
 const APP_FILES = [
   "./",
   "./admin.html",
