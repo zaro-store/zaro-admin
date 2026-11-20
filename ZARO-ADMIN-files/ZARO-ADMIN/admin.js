@@ -478,13 +478,32 @@ $("catalogPackageCancel").addEventListener("click",resetPackageForm);
 $("catalogPackageGame").addEventListener("change",event=>{selectedCatalogGameId=event.target.value;renderCatalogPackages();});
 $("productsRefresh").addEventListener("click",loadCatalog);
 
+// Local operations price calculator. It does not write to Supabase or activate orders.
+$("opsPriceForm")?.addEventListener("submit",event=>{
+  event.preventDefault();
+  const cost=Number($("opsCost").value), selling=Number($("opsSelling").value);
+  if(!Number.isFinite(cost)||!Number.isFinite(selling)||cost<0||selling<0){
+    $("opsPriceFeedback").textContent="راجع الأرقام المدخلة؛ يجب أن تكون صفرًا أو أكثر.";
+    $("opsProfit").textContent="—"; $("opsMargin").textContent="—"; return;
+  }
+  const profit=selling-cost;
+  const margin=selling>0?(profit/selling)*100:0;
+  $("opsProfit").textContent=moneyEGP(profit);
+  $("opsMargin").textContent=selling>0?margin.toLocaleString("ar-EG",{maximumFractionDigits:2})+"%":"غير متاح";
+  $("opsPriceFeedback").textContent=profit>=0?"تم الحساب محليًا. النتيجة لا تحفظ سعرًا في الكتالوج.":"سعر البيع أقل من تكلفة المورد.";
+});
+$("opsPriceReset")?.addEventListener("click",()=>{
+  $("opsPriceForm").reset(); $("opsProfit").textContent="—"; $("opsMargin").textContent="—";
+  $("opsPriceFeedback").textContent="أدخل التكلفة وسعر البيع لعرض النتيجة.";
+});
+
 document.querySelectorAll("[data-page]").forEach(button => {
   button.addEventListener("click", () => {
     const page = button.dataset.page;
     document.querySelectorAll(".dashboard-page").forEach(section => section.classList.remove("active"));
     document.querySelectorAll(".nav-item").forEach(item => item.classList.toggle("active", item.dataset.page === page));
     $(`page-${page}`)?.classList.add("active");
-    const names = { overview:"نظرة عامة", orders:"الطلبات", support:"خدمة العملاء", products:"المنتجات", customers:"العملاء", settings:"الإعدادات" };
+    const names = { overview:"نظرة عامة", orders:"الطلبات", support:"خدمة العملاء", products:"المنتجات", customers:"العملاء", operations:"مركز التشغيل والتسعير", settings:"الإعدادات" };
     $("pageTitle").textContent = names[page] || "لوحة التحكم";
     if (page === "support") loadSupportTickets();
     if (page === "customers") loadCustomerAccounts();
