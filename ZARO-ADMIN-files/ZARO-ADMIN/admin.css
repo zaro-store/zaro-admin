@@ -95,3 +95,21 @@
 .analytics-note{font-size:9px;color:#747d8b;margin:12px 3px}
 @media(max-width:900px){.analytics-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.analytics-grid{grid-template-columns:1fr}.analytics-wide{grid-column:auto}.analytics-heading{align-items:flex-start;gap:12px;flex-direction:column}.analytics-kpi{padding:13px}.analytics-kpi strong{font-size:16px}.chart-wrap{height:230px}}
+
+/* Screenshot-matched ZARO admin overview */
+.zaro-reference-banner{min-height:190px;border:1px solid rgba(255,104,31,.25);border-radius:17px;padding:30px 28px;background:radial-gradient(ellipse at 85% 50%,rgba(255,91,22,.18),transparent 35%),linear-gradient(110deg,#171311,#1c120e);display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.zaro-reference-banner h1{font-size:25px;margin:12px 0 4px}.zaro-reference-banner p{font-size:11px;color:#92939a;margin:0}
+.zaro-crown{width:125px;height:115px;display:grid;place-items:center;color:#b96732;font-size:76px}
+.zaro-reference-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px}
+.zaro-reference-stat{position:relative;min-height:182px;padding:20px 18px;border:1px solid rgba(255,255,255,.08);border-radius:15px;background:#111;display:flex;flex-direction:column;align-items:flex-start}
+.zaro-reference-stat>span{font-size:10px;color:#aeb0b7;margin-top:13px}.zaro-reference-stat strong{font:800 26px Orbitron,'Cairo',sans-serif;margin:8px 0 3px}.zaro-reference-stat small{font-size:9px;color:#666d77}
+.ref-stat-icon{width:37px;height:37px;border-radius:11px;display:grid;place-items:center}.ref-stat-icon.orange{color:#ff681f;background:rgba(255,104,31,.15)}.ref-stat-icon.green{color:#37d18d;background:rgba(55,209,141,.14)}.ref-stat-icon.yellow{color:#ffc34e;background:rgba(255,195,78,.14)}.ref-stat-icon.blue{color:#55a7ff;background:rgba(85,167,255,.14)}
+.zaro-reference-lower{display:grid;grid-template-columns:minmax(330px,.78fr) minmax(0,1.42fr);gap:15px;direction:rtl;align-items:start}
+.zaro-health-panel,.zaro-orders-panel{border:1px solid rgba(255,255,255,.08);border-radius:15px;background:#111;min-width:0;overflow:hidden}
+.zaro-health-panel{padding:25px 21px}.zaro-health-panel h2,.zaro-orders-heading h2{font-size:17px;margin:8px 0 22px}
+.zaro-health-row{display:flex;justify-content:space-between;align-items:center;padding:15px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:11px;color:#9da2ac}.zaro-health-row b{color:#fff;font:700 13px Orbitron,sans-serif}
+.zaro-health-warning{margin-top:17px;padding:13px;border-radius:10px;background:rgba(255,183,67,.1);color:#d9a64b;font-size:10px;line-height:1.8}.zaro-health-warning i{margin-left:6px}
+.zaro-orders-heading{padding:23px 20px 12px;display:flex;justify-content:space-between;align-items:center;gap:12px}.zaro-orders-heading h2{margin-bottom:0}
+.zaro-orders-panel .table-wrap{padding:0 18px 12px}.zaro-orders-panel th{font-size:9px}.zaro-orders-panel td{font-size:9px;padding:14px 12px}
+@media(max-width:1100px){.zaro-reference-lower{grid-template-columns:1fr}.zaro-reference-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.zaro-reference-banner{min-height:145px;padding:20px}.zaro-reference-banner h1{font-size:20px}.zaro-crown{width:65px;font-size:48px}.zaro-reference-stats{gap:9px}.zaro-reference-stat{min-height:150px;padding:13px}.zaro-reference-stat strong{font-size:20px}.zaro-reference-lower{grid-template-columns:1fr}.zaro-health-panel{padding:18px}}
