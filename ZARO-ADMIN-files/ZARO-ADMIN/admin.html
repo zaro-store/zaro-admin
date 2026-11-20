@@ -60,6 +60,7 @@
         <button class="nav-item" data-page="support"><i class="fa-solid fa-headset"></i><span>خدمة العملاء</span><span class="nav-count" id="sidebarSupportCount">0</span></button>
         <button class="nav-item" data-page="products"><i class="fa-solid fa-cubes"></i><span>المنتجات</span></button>
         <button class="nav-item" data-page="customers"><i class="fa-solid fa-users"></i><span>العملاء</span></button>
+        <button class="nav-item" data-page="operations"><i class="fa-solid fa-sliders"></i><span>مركز التشغيل والتسعير</span></button>
         <button class="nav-item" data-page="settings"><i class="fa-solid fa-sliders"></i><span>الإعدادات</span></button>
       </nav>
       <div class="sidebar-bottom"><div class="secure-card"><i class="fa-solid fa-shield-halved"></i><div><b>النظام محمي</b><small>اتصال آمن بلوحة الإدارة</small></div><span class="status-dot"></span></div><div class="sidebar-version">ZARO ADMIN <span>v1.0.0</span></div></div>
@@ -175,6 +176,48 @@
 <div class="content-card"><div class="orders-toolbar"><div><h2>طلبات إنشاء الحسابات</h2><p>كل حساب جديد يظهر هنا بحالة انتظار التفعيل.</p></div><div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input id="customerSearch" type="search" placeholder="ابحث بالاسم أو البريد أو ZARO ID..."></div></div>
 <div class="table-wrap"><table><thead><tr><th>الاسم</th><th>البريد الإلكتروني</th><th>ZARO ID</th><th>الحالة</th><th>تاريخ التسجيل</th><th>إجراءات</th></tr></thead><tbody id="customerAccountsTable"><tr><td colspan="6" class="table-empty">جاري تحميل الحسابات...</td></tr></tbody></table></div><p id="customerAccountsFeedback" class="form-message" role="status"></p></div>
 </section>
+        <section class="dashboard-page" id="page-operations">
+          <div class="section-heading page-heading"><div><span class="eyebrow">OPERATIONS CENTER</span><h1>مركز التشغيل والتسعير</h1><p>أدوات داخلية لمراجعة التسعير والاستعداد قبل إطلاق الشحن الفعلي.</p></div></div>
+          <div class="stats-grid">
+            <article class="stat-card"><div class="stat-label">حالة المورد</div><strong style="font-size:20px">غير مربوط</strong><small>لا يوجد API مورد مؤكد حتى الآن</small></article>
+            <article class="stat-card"><div class="stat-label">حالة الدفع</div><strong style="font-size:20px">غير مربوط</strong><small>لا يتم اعتماد أي طلب بناءً على إدخال يدوي</small></article>
+            <article class="stat-card"><div class="stat-label">التنفيذ الآلي</div><strong style="font-size:20px">متوقف</strong><small>يُفعّل بعد اختبار المورد والتحقق من الدفع</small></article>
+          </div>
+          <div class="catalog-layout">
+            <section class="content-card catalog-editor">
+              <div class="catalog-card-heading"><div><span class="eyebrow">PRICE CALCULATOR</span><h2>حاسبة سعر الباقة</h2><p>حساب محلي فقط، ولا يحفظ أو يغيّر أسعار الكتالوج.</p></div><span class="catalog-icon"><i class="fa-solid fa-calculator"></i></span></div>
+              <form id="opsPriceForm" class="catalog-form">
+                <div class="catalog-fields two">
+                  <label>تكلفة المورد (ج.م)<input id="opsCost" type="number" min="0" step="0.01" placeholder="مثال: 35" required></label>
+                  <label>سعر البيع (ج.م)<input id="opsSelling" type="number" min="0" step="0.01" placeholder="مثال: 45" required></label>
+                </div>
+                <div class="catalog-actions"><button class="primary-button" type="submit">احسب السعر والربح</button><button class="secondary-button" id="opsPriceReset" type="button">مسح</button></div>
+                <p class="catalog-feedback" id="opsPriceFeedback" role="status">أدخل التكلفة وسعر البيع لعرض النتيجة.</p>
+              </form>
+              <div class="analytics-kpis">
+                <article class="analytics-kpi"><span>الربح قبل المصاريف</span><strong id="opsProfit">—</strong></article>
+                <article class="analytics-kpi"><span>هامش الربح</span><strong id="opsMargin">—</strong></article>
+              </div>
+            </section>
+            <section class="content-card catalog-editor">
+              <div class="catalog-card-heading"><div><span class="eyebrow">PRE-LAUNCH CHECKLIST</span><h2>شروط ما قبل الإطلاق</h2><p>لا تفعّل البيع قبل اكتمال التحقق من كل بند.</p></div><span class="catalog-icon"><i class="fa-solid fa-clipboard-check"></i></span></div>
+              <div class="catalog-form">
+                <label class="catalog-check"><input type="checkbox" disabled> استلام قائمة أسعار رسمية من المورد</label>
+                <label class="catalog-check"><input type="checkbox" disabled> تأكيد دعم مصر والمنتجات المطلوبة</label>
+                <label class="catalog-check"><input type="checkbox" disabled> اختبار API ونتيجة الشحن الفعلية</label>
+                <label class="catalog-check"><input type="checkbox" disabled> ربط بوابة دفع والتحقق من إشعار الدفع</label>
+                <label class="catalog-check"><input type="checkbox" disabled> اختبار الاسترجاع وفشل الطلبات</label>
+                <p class="analytics-note">القائمة للتذكير فقط. لا تعتبر أي خطوة مكتملة قبل توثيقها ومراجعتها مع ولي الأمر والمورد.</p>
+              </div>
+            </section>
+          </div>
+          <section class="content-card catalog-list-card">
+            <div class="catalog-card-heading"><div><span class="eyebrow">ORDER APPROVAL POLICY</span><h2>سياسة مراجعة الطلبات</h2><p>مقترح تشغيل داخلي، وليس موافقة تلقائية مفعّلة.</p></div></div>
+            <div class="settings-row"><div><b>طلبات أقل من 500 ج.م</b><small>تُراجع بعد التحقق الفعلي من وصول الدفع، ثم تُرسل للتنفيذ.</small></div><span class="connection-pill">مراجعة الدفع أولاً</span></div>
+            <div class="settings-row"><div><b>طلبات 500 ج.م أو أكثر</b><small>تحتاج موافقة إدارية يدوية بعد التحقق من الدفع وتفاصيل الطلب.</small></div><span class="connection-pill">موافقة يدوية</span></div>
+            <p class="analytics-note">حاليًا الطلبات تجريبية ولا يوجد ربط دفع أو مورد؛ لذلك لا يتم شحن أي طلب تلقائيًا.</p>
+          </section>
+        </section>
         <section class="dashboard-page" id="page-settings"><div class="section-heading page-heading"><div><span class="eyebrow">PREFERENCES</span><h1>الإعدادات</h1><p>معلومات اتصال لوحة الإدارة.</p></div></div><div class="content-card settings-card"><div class="settings-row"><div><b>حالة الاتصال</b><small>الاتصال بقاعدة بيانات Supabase</small></div><span class="connection-pill"><i class="fa-solid fa-circle"></i> متصل عند نجاح تسجيل الدخول</span></div><div class="settings-row"><div><b>صلاحيات الإدارة</b><small>يتم التحقق من معرّف حساب المدير عند تسجيل الدخول</small></div><span class="connection-pill">Admin only</span></div><div class="settings-row"><div><b>التطبيق</b><small>نسخة الويب القابلة للتثبيت</small></div><span class="connection-pill">PWA v1.0.0</span></div></div></section>
         <footer class="dashboard-footer"><span>© 2026 ZARO. ALL RIGHTS RESERVED.</span><span>BUILT FOR THE NEXT LEVEL <i class="fa-solid fa-bolt"></i></span></footer>
       </div>
