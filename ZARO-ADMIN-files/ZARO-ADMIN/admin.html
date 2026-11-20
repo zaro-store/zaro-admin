@@ -73,32 +73,34 @@
       </header>
       <div class="page-container">
         <section class="dashboard-page active" id="page-overview">
-          <div class="welcome-banner"><div><span class="eyebrow">ADMIN DASHBOARD</span><h1>أهلاً بعودتك 👋</h1><p>دي نظرة سريعة على نشاط متجر ZARO.</p></div><div class="banner-art"><i class="fa-solid fa-crown"></i><span></span></div></div>
-          <div class="section-heading"><div><h2>ملخص المتجر</h2><p>مؤشرات الطلبات المسجلة في قاعدة البيانات</p></div><button class="secondary-button" id="refreshButton"><i class="fa-solid fa-rotate"></i> تحديث البيانات</button></div>
-          <div class="stats-grid">
-            <article class="stat-card"><div class="stat-icon orange"><i class="fa-solid fa-bag-shopping"></i></div><div class="stat-label">إجمالي الطلبات</div><strong id="totalOrders">0</strong><small>كل الطلبات المسجلة</small></article>
-            <article class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div><div class="stat-label">طلبات مكتملة</div><strong id="completedOrders">0</strong><small>تم تحديث حالتها إلى مكتمل</small></article>
-            <article class="stat-card"><div class="stat-icon blue"><i class="fa-solid fa-clock"></i></div><div class="stat-label">طلبات قيد التنفيذ</div><strong id="pendingOrders">0</strong><small>تحتاج إلى متابعة</small></article>
-            <article class="stat-card"><div class="stat-icon purple"><i class="fa-solid fa-coins"></i></div><div class="stat-label">إجمالي المبالغ المسجلة</div><strong id="totalSales">0 ج.م</strong><small>يُحسب من المبالغ غير الفارغة فقط</small></article>
+          <div class="zaro-reference-banner">
+            <div><span class="eyebrow">WELCOME BACK, ADMIN</span><h1>مركز قيادة ZARO</h1><p>كل تفاصيل المتجر في شاشة واحدة. البيانات تُحمّل مباشرة من قاعدة البيانات.</p></div>
+            <div class="zaro-crown"><i class="fa-solid fa-crown"></i></div>
           </div>
-          <section class="analytics-section">
-            <div class="section-heading analytics-heading"><div><span class="eyebrow">LIVE ANALYTICS</span><h2>تحليلات المتجر</h2><p>رسوم تفاعلية مبنية على الطلبات المسجلة في قاعدة البيانات.</p></div>
-              <label class="analytics-range">الفترة <select id="analyticsRange"><option value="7">آخر 7 أيام</option><option value="30" selected>آخر 30 يوم</option><option value="90">آخر 90 يوم</option><option value="all">كل الفترة</option></select></label>
-            </div>
-            <div class="analytics-kpis">
-              <article class="analytics-kpi"><span>قيمة الطلبات المكتملة</span><strong id="analyticsRevenue">0 ج.م</strong><small>لا تشمل الطلبات المعلقة أو التجريبية</small></article>
-              <article class="analytics-kpi"><span>الطلبات المكتملة</span><strong id="analyticsCompleted">0</strong><small>خلال الفترة المحددة</small></article>
-              <article class="analytics-kpi"><span>متوسط قيمة الطلب المكتمل</span><strong id="analyticsAverage">0 ج.م</strong><small>القيمة ÷ عدد الطلبات المكتملة</small></article>
-              <article class="analytics-kpi muted-kpi"><span>صافي الربح</span><strong>غير متاح</strong><small>يظهر بعد ربط تكلفة المورد بكل طلب فعلي</small></article>
-            </div>
-            <div class="analytics-grid">
-              <article class="content-card analytics-card analytics-wide"><div class="analytics-card-head"><div><h3>حركة المبيعات</h3><p>قيمة الطلبات المكتملة يوميًا</p></div><span class="chart-live-dot">LIVE DATA</span></div><div class="chart-wrap"><canvas id="salesTrendChart" aria-label="رسم حركة المبيعات"></canvas></div></article>
-              <article class="content-card analytics-card"><div class="analytics-card-head"><div><h3>حالة الطلبات</h3><p>توزيع الطلبات في الفترة</p></div></div><div class="chart-wrap chart-doughnut"><canvas id="ordersStatusChart" aria-label="رسم حالات الطلبات"></canvas></div></article>
-              <article class="content-card analytics-card"><div class="analytics-card-head"><div><h3>الألعاب الأكثر طلبًا</h3><p>حسب عدد الطلبات</p></div></div><div class="chart-wrap"><canvas id="topGamesChart" aria-label="رسم الألعاب الأكثر طلبًا"></canvas></div></article>
-            </div>
-            <p class="analytics-note" id="analyticsNote">البيانات تتحدث تلقائيًا عند تحديث الطلبات.</p>
+          <div class="zaro-reference-stats">
+            <article class="zaro-reference-stat"><div class="ref-stat-icon orange"><i class="fa-solid fa-bag-shopping"></i></div><span>إجمالي الطلبات</span><strong id="totalOrders">0</strong><small>كل الطلبات المسجلة</small></article>
+            <article class="zaro-reference-stat"><div class="ref-stat-icon green"><i class="fa-solid fa-circle-check"></i></div><span>الطلبات المكتملة</span><strong id="completedOrders">0</strong><small>تم تأكيد تنفيذها إداريًا</small></article>
+            <article class="zaro-reference-stat"><div class="ref-stat-icon yellow"><i class="fa-solid fa-clock"></i></div><span>طلبات قيد الانتظار</span><strong id="pendingOrders">0</strong><small>تحتاج مراجعة</small></article>
+            <article class="zaro-reference-stat"><div class="ref-stat-icon blue"><i class="fa-solid fa-sack-dollar"></i></div><span>قيمة الطلبات المسجلة</span><strong id="totalSales">0 ج.م</strong><small>ليست أرباحًا صافية</small></article>
+          </div>
+          <div class="zaro-reference-lower">
+            <section class="zaro-health-panel">
+              <div class="eyebrow">STORE HEALTH</div><h2>حالة المتجر</h2>
+              <div class="zaro-health-row"><span>الألعاب المسجلة</span><b>6</b></div>
+              <div class="zaro-health-row"><span>الباقات المسجلة</span><b>36</b></div>
+              <div class="zaro-health-row"><span>تذاكر الدعم المفتوحة</span><b id="sidebarSupportCountHealth">0</b></div>
+              <div class="zaro-health-warning"><i class="fa-solid fa-triangle-exclamation"></i> الدفع والشحن الفعلي غير مربوطين بعد. لا تعتمد على قيمة الطلب كإثبات دفع أو شحن.</div>
+            </section>
+            <section class="zaro-orders-panel">
+              <div class="zaro-orders-heading"><div><span class="eyebrow">ORDERS MANAGEMENT</span><h2>أحدث الطلبات</h2></div><button class="secondary-button" data-page="orders">كل الطلبات ←</button></div>
+              <div class="table-wrap"><table><thead><tr><th>رقم</th><th>اللعبة</th><th>رقم اللاعب</th><th>الباقة</th><th>المبلغ</th><th>الحالة</th></tr></thead><tbody id="recentOrders"><tr><td colspan="6" class="table-empty">جاري تحميل البيانات...</td></tr></tbody></table></div>
+            </section>
+          </div>
+          <section class="analytics-section" hidden>
+            <div class="section-heading analytics-heading"><div><span class="eyebrow">LIVE ANALYTICS</span><h2>تحليلات المتجر</h2><p>رسوم تفاعلية مبنية على الطلبات المسجلة في قاعدة البيانات.</p></div><label class="analytics-range">الفترة <select id="analyticsRange"><option value="7">آخر 7 أيام</option><option value="30" selected>آخر 30 يوم</option><option value="90">آخر 90 يوم</option><option value="all">كل الفترة</option></select></label></div>
+            <div class="analytics-kpis"><article class="analytics-kpi"><span>قيمة الطلبات المكتملة</span><strong id="analyticsRevenue">0 ج.م</strong><small>لا تشمل الطلبات المعلقة أو التجريبية</small></article><article class="analytics-kpi"><span>الطلبات المكتملة</span><strong id="analyticsCompleted">0</strong><small>خلال الفترة المحددة</small></article><article class="analytics-kpi"><span>متوسط قيمة الطلب المكتمل</span><strong id="analyticsAverage">0 ج.م</strong><small>القيمة ÷ عدد الطلبات المكتملة</small></article><article class="analytics-kpi muted-kpi"><span>صافي الربح</span><strong>غير متاح</strong><small>يظهر بعد ربط تكلفة المورد بكل طلب فعلي</small></article></div>
+            <div class="analytics-grid"><article class="content-card analytics-card analytics-wide"><div class="analytics-card-head"><div><h3>حركة المبيعات</h3><p>قيمة الطلبات المكتملة يوميًا</p></div><span class="chart-live-dot">LIVE DATA</span></div><div class="chart-wrap"><canvas id="salesTrendChart"></canvas></div></article><article class="content-card analytics-card"><div class="analytics-card-head"><div><h3>حالة الطلبات</h3><p>توزيع الطلبات في الفترة</p></div></div><div class="chart-wrap chart-doughnut"><canvas id="ordersStatusChart"></canvas></div></article><article class="content-card analytics-card"><div class="analytics-card-head"><div><h3>الألعاب الأكثر طلبًا</h3><p>حسب عدد الطلبات</p></div></div><div class="chart-wrap"><canvas id="topGamesChart"></canvas></div></article></div><p class="analytics-note" id="analyticsNote"></p>
           </section>
-          <section class="content-card"><div class="card-heading"><div><h2>أحدث الطلبات</h2><p>آخر الطلبات التي وصلت للمتجر</p></div><button class="text-button" data-page="orders">عرض كل الطلبات <i class="fa-solid fa-arrow-left"></i></button></div><div class="table-wrap"><table><thead><tr><th>رقم الطلب</th><th>اللعبة</th><th>الباقة</th><th>معرّف اللاعب</th><th>الحالة</th><th>التاريخ</th></tr></thead><tbody id="recentOrders"><tr><td colspan="6" class="table-empty">جاري تحميل البيانات...</td></tr></tbody></table></div></section>
         </section>
         <section class="dashboard-page" id="page-orders">
           <div class="section-heading page-heading"><div><span class="eyebrow">ORDER MANAGEMENT</span><h1>إدارة الطلبات</h1><p>راجع الطلبات وحدّث حالتها من هنا.</p></div><button class="secondary-button" id="ordersRefresh"><i class="fa-solid fa-rotate"></i> تحديث</button></div>
